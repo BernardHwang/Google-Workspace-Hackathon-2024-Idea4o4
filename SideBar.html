@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    h3 {
+      color: #333;
+    }
+    form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    input[type="text"], select {
+      width: calc(100% - 10px);
+      padding: 6px;
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 12px;
+    }
+    input[type="button"] {
+      background-color: #4CAF50;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    input[type="button"]:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h3>Enter Ranges</h3>
+  <form id="rangeForm">
+    <label for="stockProductCodeStartRange">Stock Product Code Start Range:</label>
+    <input type="text" id="stockProductCodeStartRange" name="stockProductCodeStartRange" required>
+
+    <label for="stockProductCodeEndRange">Stock Product Code End Range:</label>
+    <input type="text" id="stockProductCodeEndRange" name="stockProductCodeEndRange" required>
+
+    <label for="stockProductDescStartRange">Stock Product Desc Start Range:</label>
+    <input type="text" id="stockProductDescStartRange" name="stockProductDescStartRange" required>
+
+    <label for="stockProductDescEndRange">Stock Product Desc End Range:</label>
+    <input type="text" id="stockProductDescEndRange" name="stockProductDescEndRange" required>
+
+    <label for="stockBalanceStartRange">Stock Balance Start Range:</label>
+    <input type="text" id="stockBalanceStartRange" name="stockBalanceStartRange" required>
+
+    <label for="stockBalanceEndRange">Stock Balance End Range:</label>
+    <input type="text" id="stockBalanceEndRange" name="stockBalanceEndRange" required>
+
+    <label for="productCodeSheetName">Product Code Sheet Name:</label>
+    <select id="productCodeSheetName" name="productCodeSheetName" required></select>
+
+    <label for="productCodeStartRange">Product Code Start Range:</label>
+    <input type="text" id="productCodeStartRange" name="productCodeStartRange" required>
+
+    <label for="productCodeEndRange">Product Code End Range:</label>
+    <input type="text" id="productCodeEndRange" name="productCodeEndRange" required>
+
+    <label for="salesStartRange">Sales Start Range:</label>
+    <input type="text" id="salesStartRange" name="salesStartRange" required>
+
+    <label for="salesEndRange">Sales End Range:</label>
+    <input type="text" id="salesEndRange" name="salesEndRange" required>
+
+    <input type="button" value="Submit" onclick="submitRanges()">
+  </form>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      google.script.run.withSuccessHandler(populateSheetNames).getSheetNames();
+    });
+
+    function populateSheetNames(sheetNames) {
+      var selectElement = document.getElementById("productCodeSheetName");
+      sheetNames.forEach(function(sheetName) {
+        var option = document.createElement("option");
+        option.value = sheetName;
+        option.text = sheetName;
+        selectElement.appendChild(option);
+      });
+    }
+
+    function submitRanges() {
+      var form = document.getElementById("rangeForm");
+      var formData = new FormData(form);
+      var ranges = {};
+      formData.forEach(function(value, key) {
+        ranges[key] = value;
+      });
+      google.script.run.processRanges(
+        ranges.stockProductCodeStartRange,
+        ranges.stockProductCodeEndRange,
+        ranges.stockProductDescStartRange,
+        ranges.stockProductDescEndRange,
+        ranges.stockBalanceStartRange,
+        ranges.stockBalanceEndRange,
+        ranges.productCodeSheetName,
+        ranges.productCodeStartRange,
+        ranges.productCodeEndRange,
+        ranges.salesStartRange,
+        ranges.salesEndRange
+      );
+    }
+  </script>
+</body>
+</html>
