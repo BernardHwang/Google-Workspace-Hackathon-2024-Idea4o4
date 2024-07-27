@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    input[type="email"],
+    input[type="number"] {
+      width: calc(100% - 22px);
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #products {
+      margin-bottom: 20px;
+    }
+    .product {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .product label {
+      margin: 0;
+      margin-left: 10px;
+      flex: 1;
+    }
+    .product input[type="number"] {
+      width: 60px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Restock Request</h1>
+  <form id="restockForm">
+    <label for="supplierEmail">Supplier Email:</label>
+    <input type="email" id="supplierEmail" name="supplierEmail" required><br><br>
+    
+    <label>Select Products and Enter Quantities:</label>
+    <div id="products"></div><br>
+
+    <button type="button" onclick="sendRestockRequest()">Send Restock Request</button>
+  </form>
+
+  <script>
+    function loadProducts() {
+      google.script.run.withSuccessHandler(function(products) {
+        var productsDiv = document.getElementById('products');
+        productsDiv.innerHTML = ''; // Clear any existing content
+        products.forEach(function(product) {
+          var div = document.createElement('div');
+          div.className = 'product';
+
+          var checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.id = product.name;
+          checkbox.name = 'products';
+          checkbox.value = product.name;
+
+          var label = document.createElement('label');
+          label.htmlFor = product.name;
+          label.appendChild(document.createTextNode(product.name));
+
+          var quantityInput = document.createElement('input');
+          quantityInput.type = 'number';
+          quantityInput.id = 'quantity_' + product.name;
+          quantityInput.name = 'quantities';
+          quantityInput.placeholder = 'Enter quantity';
+          quantityInput.min = '1';
+
+          div.appendChild(checkbox);
+          div.appendChild(label);
+          div.appendChild(quantityInput);
+          productsDiv.appendChild(div);
+        });
+      }).getProducts();
+    }
+
+    function sendRestockRequest() {
+      var form = document.getElementById('restockForm');
+      var supplierEmail = form.supplierEmail.value;
+      var selectedProducts = Array.from(document.querySelectorAll('input[name="products"]:checked')).map(checkbox => checkbox.value);
+      var quantities = {};
+
+      selectedProducts.forEach(function(product) {
+        var quantity = document.getElementById('quantity_' + product).value;
+        if (quantity) {
+          quantities[product] = quantity;
+        }
+      });
+
+      if (selectedProducts.length === 0) {
+        alert("Please select at least one product.");
+        return;
+      }
+
+      google.script.run.withSuccessHandler(function(response) {
+        alert(response);
+      }).sendRestockRequest(supplierEmail, quantities);
+    }
+
+    window.onload = loadProducts;
+  </script>
+</body>
+</html>
